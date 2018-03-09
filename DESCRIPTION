@@ -1,0 +1,19 @@
+Package: pclm
+Title: Penalised Composite Link Models
+Version: 0.0.1
+Authors@R: person("Stephen",
+                  "Wade",
+                  email = "stephen.wade@nswcc.org.au",
+                  role = c("aut", "cre"))
+Description: Fit penalised composite link models by optimisation of the Akaike
+    information criteria and iteratively re-weighted least squares.
+Depends:
+    R (>= 3.0.0)
+Imports:
+    stats,
+    splines
+Suggests: testthat
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
