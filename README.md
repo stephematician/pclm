@@ -25,7 +25,7 @@ Further discussion of the penalty applied to the rates (or spline coefficients)
 can be found here:
 
 Paul H. C. Eilers and Brian D. Marx, 1996, Flexible smoothing with B-splines
-and penalties, \emph{Statistical Science, 11}(2), pp. 89-102,
+and penalties, _Statistical Science, 11_(2), pp. 89-102,
 [doi:10.1214/ss/1038425655](https://doi.org/10.1214/ss/1038425655)
 
 
