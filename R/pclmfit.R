@@ -1,8 +1,30 @@
 #' Penalised Composite Link Model by minimisation of AIC
 #'
-#' No description here yet
+#' Fits a penalised composite link model (PCLM) to grouped count data. This
+#' provides an estimate of the distribution of objects in a specified number
+#' of bins within each group (typically equi-spaced).
 #'
-#' Description
+#' The PCLM is given by minimising the Akaike Information Criterion (to specify
+#' the smoothing parameter) as outlined in the paper:
+#'
+#' Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient estimation
+#' of smooth distributions from coarsely grouped data, \emph{Am. J. Epidemiol.,
+#' 182}(2), pp. 138-147, doi.10.1093/aje/kwv020
+#'
+#' Allows for a within-group weighting in each bin, so that additional
+#' (relative) information about the rates within a group can be incorporated.
+#' For example, given two bins within a group, it might be known that one bin
+#' is twice as likely as the other (aside: this is not the same as knowing that
+#' one bin is twice as 'wide' as the other).
+#'
+#' If there are a large number of bins, it can be useful to model the rates (in
+#' each bin) using splines. This is possible by specifying \code{use_spline=T}
+#' and selecting a number of knots using the \code{k} argument (defaults to
+#' four). The knot placement is given by the default behaviour of
+#' \code{\link[splines]{bs}}. For further discussion see:
+#'
+#' Paul H. C. Eilers and Brian D. Marx, 1996, Flexible smoothing with B-splines
+#' and penalties, \emph{Statistical Science, 11}(2), pp. 89-102.
 #'
 #' @param n a numeric vector of counts in each group
 #' @param x a numeric vector of the index into n for each bin
@@ -20,6 +42,7 @@
 #'     \item{'dev'}{The deviance of gamma given mu}
 #'     \item{'aic'}{The Aikake Information Criterion of the fitted model}
 #'     \item{'converged'}{Convergence status of IRLS procedure}
+#'     \item{'lambda'}{Value of smoothing parameter that minimised AIC}
 #' }
 #'
 #' @importFrom stats optim

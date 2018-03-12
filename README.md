@@ -16,10 +16,17 @@ Penalised composite link models are an efficient method to ungrouping binned
 data where there is no additional information about the distribution.
 The method implemented in this code is adapted from the paper:
 
-Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, _Efficient Estimation
-of Smooth Distributions From Coarsely Grouped Data_ Am. J. Epidemiol.
-first published online June 16, 2015
+Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient estimation
+of smooth distributions from coarsely grouped data, _Am. J. Epidemiol.,
+182_(2), pp. 138-147,
 [doi.10.1093/aje/kwv020](https://doi.org/10.1093/aje/kwv020)
+
+Further discussion of the penalty applied to the rates (or spline coefficients)
+can be found here:
+
+Paul H. C. Eilers and Brian D. Marx, 1996, Flexible smoothing with B-splines
+and penalties, \emph{Statistical Science, 11}(2), pp. 89-102,
+[doi:10.1214/ss/1038425655](https://doi.org/10.1214/ss/1038425655)
 
 
 ## Installation
