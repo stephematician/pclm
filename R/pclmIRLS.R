@@ -28,9 +28,12 @@
 #' and penalties, \emph{Statistical Science, 11}(2), pp. 89-102,
 #' doi:10.1214/ss/1038425655
 #'
-#' Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient Estimation
-#' of Smooth Distributions From Coarsely Grouped Data, Am. J. Epidemiol. first
-#' published online June 16, 2015 doi.10.1093/aje/kwv020
+#' And for the original code upon which this was based, see (and erratum
+#' thereof):
+#'
+#' Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient estimation
+#' of smooth distributions from coarsely grouped data, \emph{Am. J. Epidemiol.,
+#' 182}(2), pp. 138-147, doi.10.1093/aje/kwv020
 #'
 #' @param n a numeric vector containing grouped count data
 #' @param C a matrix for the mapping of bins to groups in the model

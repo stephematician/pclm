@@ -34,7 +34,35 @@ Applies IRLS to a find the maximum value of a penalised likelihood expression
 representing the likelihood of a composite link model.
 }
 \details{
-Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient Estimation
-of Smooth Distributions From Coarsely Grouped Data Am. J. Epidemiol. first
-published online June 16, 2015 doi.10.1093/aje/kwv020
+Solves the system:
+
+\deqn{X^TWXb = X^TW[inv(W)(y - \mu) + X^Tb}
+\deqn{\sqrt{lambda} D = 0}
+
+Where \eqn{X} is the transformation between the rate in each bin and the
+subspace that the rates are being modelled on, by default the identity
+matrix is used, but a spline basis can be used if there are too many
+rates (bins) to estimate.
+
+\eqn{W} is constructed in each iteration so that the solution to the system
+converges to the maximum likelihood estimate of \eqn{b}, using the usual
+iteratively reweigthed least-squares for \eqn{L^1} norm minimisation.
+
+\eqn{D} is, by default, the second order difference matrix, a kind of
+smoothing penalty applied to the system, and the value of lambda is a
+smoothing parameter often determined by minimisation of the AIC.
+
+For further details on the use of splines and the penalty applied to the
+coefficients, see
+
+Paul H. C. Eilers and Brian D. Marx, 1996, Flexible smoothing with B-splines
+and penalties, \emph{Statistical Science, 11}(2), pp. 89-102,
+doi:10.1214/ss/1038425655
+
+And for the original code upon which this was based, see (and erratum
+thereof):
+
+Silvia Rizzi, Jutta Gampe, and Paul H. C. Eilers, 2015, Efficient estimation
+of smooth distributions from coarsely grouped data, \emph{Am. J. Epidemiol.,
+182}(2), pp. 138-147, doi.10.1093/aje/kwv020
 }
