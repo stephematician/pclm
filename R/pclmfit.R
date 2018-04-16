@@ -43,6 +43,7 @@
 #'     \item{'aic'}{The Aikake Information Criterion of the fitted model}
 #'     \item{'converged'}{Convergence status of IRLS procedure}
 #'     \item{'lambda'}{Value of smoothing parameter that minimised AIC}
+#'     \item{'group_bin'}{The group to which each bin belongs}
 #' }
 #'
 #' @importFrom stats optim
@@ -80,7 +81,8 @@ pclmfit <- function(n, x, w=rep(1, length(x)), use_spline=F, k=4) {
                      lower=.Machine$double.eps^2)$par
 
     fit <- c(pclmIRLS(n, C, X, lambda=lambda0),
-             list(lambda=lambda0))
+             list(lambda=lambda0,
+                  bin_group=x))
 
 }
 
