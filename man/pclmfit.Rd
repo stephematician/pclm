@@ -29,6 +29,7 @@ a list with the following named components
     \item{'aic'}{The Aikake Information Criterion of the fitted model}
     \item{'converged'}{Convergence status of IRLS procedure}
     \item{'lambda'}{Value of smoothing parameter that minimised AIC}
+    \item{'bin_group'}{The group to which each bin belongs}
 }
 }
 \description{
