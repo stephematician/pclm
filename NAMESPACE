@@ -2,6 +2,7 @@
 
 export(pclmIRLS)
 export(pclmfit)
+export(rpclmfit)
 importFrom(splines,ns)
 importFrom(stats,lsfit)
 importFrom(stats,optim)
