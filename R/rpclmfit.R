@@ -23,6 +23,8 @@
 #' @param pclm_fit A list as returned by pclmfit
 #' @param n_sample Number of samples to draw for each observation
 #' @return Matrix of drawn bins
+#'
+#' @export
 rpclmfit <- function(D, pclm_fit, n_sample=1L) {
     
     n_bin <- length(pclm_fit$gamma)
