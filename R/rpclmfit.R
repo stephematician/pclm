@@ -40,7 +40,7 @@ rpclmfit <- function(D, pclm_fit, n_sample=1L) {
 
     # Check interval data are integer indices
     stopifnot(all(sapply(D, is.integer)))
-    stopifnot(all(D >= 1L & D <= n_bin))
+    stopifnot(all(D[,1:2] >= 1L & D[,1:2] <= n_bin))
     stopifnot(all(D[,1L] <= D[,2L]))
     if (!(is.integer(n_sample)))
         n_sample <- as.integer(n_sample)

@@ -19,7 +19,7 @@
 #'
 #' \eqn{D} is, by default, the second order difference matrix, a kind of
 #' smoothing penalty applied to the system, and the value of lambda is a
-#' smoothing parameter often determined by minimisation of the AIC. 
+#' smoothing parameter often determined by minimisation of the AIC.
 #'
 #' For further details on the use of splines and the penalty applied to the
 #' coefficients, see
@@ -75,7 +75,8 @@ pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2) {
     b_penalty  <- matrix(0, nrow(D_penalty), 1)
     wt_penalty <- matrix(lambda, nrow(D_penalty), 1)
 
-    CX <- C %*% X
+    if (nrow(X) == ncol(X))
+        CX <- C %*% X
 
     converged <- T
 
@@ -89,7 +90,10 @@ pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2) {
         # R code in paper solves as the least squares fit of two systems:
         # CLM:     X'WXB = X'W[inv(W)(y - mu) + X'B]
         # penalty : sqrt(lambda) D = 0
-        Q <- CX %*% diag(as.vector(gamma_hat))
+        if (nrow(X) == ncol(X)) {
+            Q <- CX %*% diag(as.vector(gamma_hat))
+        } else
+            Q <- C %*% diag(as.vector(gamma_hat)) %*% X
         z <- (n - mu_hat) + Q %*% b_hat
         wt_CLM <- 1 / mu_hat
 
