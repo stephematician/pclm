@@ -18,5 +18,6 @@
 #' @author Stephen Wade \email{stephematician@@gmail.com}
 #'
 #' @docType package
+#' @name pclm-package
 NULL
 

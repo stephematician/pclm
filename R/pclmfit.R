@@ -26,16 +26,22 @@
 #' Paul H. C. Eilers and Brian D. Marx, 1996, Flexible smoothing with B-splines
 #' and penalties, \emph{Statistical Science, 11}(2), pp. 89-102.
 #'
-#' @param n a numeric vector of counts in each group
-#' @param x a numeric vector of the index into n for each bin
-#' @param w a numeric vector of (within group) weights for each bin
-#' @param use_spline a boolean indicating whether or not to use a spline for the
-#'     basis of the expected count in each bin (default false)
-#' @param k the number of knots to use in the spline describing the expected
-#'     count in each bin (default 4)
+#' @param n numeric (vector); counts in each group
+#' @param x numeric (vector); the index of the group for each bin (in sequence)
+#' @param w numeric (vector); (within group) weights for each bin
+#' @param lambda0 numeric (scalar); the (initial) value of penalty (default
+#      \code{1})
+#' @param do_optim boolean; whether to perform optimisation of AIC or not
+#'     (default \code{T})
+#' @param use_spline boolean; whether or not to use a spline from
+#'      \code{MortSmooth_bbase} for the basis of the expected count in each 
+#'      bin (default \code{F})
+#' @param k integer (scalar); number of inner knots to use in the spline
+#'     describing the expected count in each bin (default \code{4})
+#' @param ... further arguments passed on to \code{optim} and \code{pclmIRLS}
 #'
 #' @return a list with the following named components
-#' \itemize{
+#' \describe{
 #'     \item{'mu'}{The (fitted) expected count in each group}
 #'     \item{'gamma'}{The (fitted) expected count in each bin}
 #'     \item{'trace'}{The effective dimension of the (fitted) model}
@@ -46,10 +52,12 @@
 #'     \item{'bin_group'}{The group to which each bin belongs}
 #' }
 #'
-#' @importFrom stats optim
+#' @importFrom stats optimize
+#' @importFrom utils modifyList
 #' @importFrom splines ns
 #' @export
-pclmfit <- function(n, x, w=rep(1, length(x)), use_spline=F, k=4) {
+pclmfit <- function(n, x, w=rep(1, length(x)), lambda0=1,
+                    do_optim=T, use_spline=F, k=4, ...) {
 
     stopifnot(is.vector(n), is.numeric(n), all(n >= 0))
     stopifnot(is.vector(x), is.numeric(x), all(x %in% 1:length(n)))
@@ -57,31 +65,52 @@ pclmfit <- function(n, x, w=rep(1, length(x)), use_spline=F, k=4) {
     stopifnot(all(1:length(n) %in% x))
     stopifnot(is.vector(w), is.numeric(w), all(w > 0))
 
+    dx <- 1E-5 # TODO: let user modify
+
     C <- matrix(0, nrow=length(n), ncol=length(x))
     C[cbind(x,1:length(x))] <- w
 
-    if (use_spline)
-        # Use natural cubic-spline basis with k knots
-        X <- ns(1:length(x), knots=k, intercept=T)
-    else
-        # Identity matrix
-        X <- diag(nrow=ncol(C))
+    pclm_args <- list(n, C)
 
-    pclm_search <- function(lambda) {
-        fit <- pclmIRLS(n, C, X, lambda=lambda)
+    if (use_spline) {
+        # Use natural cubic-spline basis with k inner knots
+        pclm_args$X <- ns(1:length(x), df=k + 2L, intercept=T)
+        pclm_args$D <- (dx^-2) * with(pclm_args,
+                                      predict(X, newx=2:(length(x)-1) + dx) +
+                                          predict(X,
+                                                  newx=2:(length(x)-1) - dx) -
+                                          2 * X[-c(1, nrow(X)),])
+    } else
+        # Identity matrix
+        pclm_args$X <- diag(nrow=ncol(C))
+
+    pclm_search <- function(ln_lambda) {
+        fit <- do.call(pclmIRLS,
+                       modifyList(pclm_args,
+                                  list(lambda=exp(ln_lambda))))
         if (!fit$converged)
             Inf
         else
             fit$aic
     }
 
-    lambda0 <- optim(par=1,
-                     pclm_search,
-                     method='L-BFGS-B',
-                     lower=.Machine$double.eps^2)$par
+    ln_lambda_fit <- log(lambda0)
 
-    fit <- c(pclmIRLS(n, C, X, lambda=lambda0),
-             list(lambda=lambda0,
+    if (do_optim) {
+        optim_args <- c(list(pclm_search),
+                        modifyList(
+                            list(lower=0.5 * log(.Machine$double.eps),
+                                 upper=0.5 * log(.Machine$double.xmax)),
+                            list(...)
+                        ))
+
+        ln_lambda_fit <- do.call(optimize, optim_args)$minimum
+    }
+
+    fit <- c(do.call(pclmIRLS,
+                     modifyList(pclm_args,
+                                list(lambda=exp(ln_lambda_fit)))),
+             list(lambda=exp(ln_lambda_fit),
                   bin_group=x))
 
 }

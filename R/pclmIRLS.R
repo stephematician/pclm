@@ -41,9 +41,10 @@
 #'    distribution for the binned data
 #' @param lambda a scalar smoothness penalty
 #' @param deg the degree of the smoothness operator
+#' @param D a matrix for penalising the likelihood (overrides \code{deg})
 #'
 #' @return a list with the following names components
-#' \itemize{
+#' \describe{
 #'     \item{'mu'}{The (fitted) expected count in each group}
 #'     \item{'gamma'}{The (fitted) expected count in each bin}
 #'     \item{'trace'}{The effective dimension of the (fitted) model}
@@ -54,26 +55,32 @@
 #'
 #' @importFrom stats lsfit
 #' @export
-pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2) {
+pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2, D) {
 
     max_iter <- 100
     tolerance <- 1e-6
 
     n_bin <- ncol(X)
-    D_penalty <- diff(diag(n_bin), diff=deg)
+    if (missing(D))
+        D_penalty <- diff(diag(n_bin), differences=deg)
+    else
+        D_penalty <- D
 
-    # Initial guess
-    b <- matrix(log(sum(n) / n_bin), n_bin, 1)
+    # Initial guess - adapted to handle splines a bit better
+    b <- matrix(lsfit(X,
+                      t(C > 0) %*% pmax(log(n / rowSums(C)), -15), # magic
+                      intercept=F)[['coefficients']],
+                nrow=n_bin)
 
     if (lambda <= 0)
         warning(paste('pclmfit:pclmIRLS() lambda > 0 required, setting',
-                      'sqrt(lambda) to eps'))
+                      'lambda to sqrt(eps)'))
 
-    lambda <- max(lambda, .Machine$double.eps^2)
+    lambda <- max(lambda, sqrt(.Machine[['double.eps']]))
 
     # Loop invariants
     b_penalty  <- matrix(0, nrow(D_penalty), 1)
-    wt_penalty <- matrix(lambda, nrow(D_penalty), 1)
+    wt_penalty <- rep(lambda, nrow(D_penalty))
 
     if (nrow(X) == ncol(X))
         CX <- C %*% X
@@ -100,7 +107,7 @@ pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2) {
         b <- lsfit(rbind(Q, D_penalty),
                    c(z, b_penalty),
                    wt=c(wt_CLM, wt_penalty),
-                   intercept=F)$coef
+                   intercept=F)[['coefficients']]
 
         delta_b <- max(abs(b - b_hat));
 
@@ -113,7 +120,10 @@ pclmIRLS <- function(n, C, X=diag(nrow=ncol(C)), lambda=1, deg=2) {
 
     gamma <- exp(X %*% b)
     mu <- C %*% gamma
-    Q <- CX %*% diag(as.vector(gamma))
+    if (nrow(X) == ncol(X)) {
+        Q <- CX %*% diag(as.vector(gamma)) 
+    } else
+        Q <- C %*% diag(as.vector(gamma)) %*% X
     R <- t(Q) %*% diag(as.vector(1 / mu)) %*% Q
     H <- solve(R + lambda * t(D_penalty) %*% D_penalty) %*% R
     tr <- sum(diag(H))

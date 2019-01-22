@@ -4,7 +4,7 @@
 \alias{pclmIRLS}
 \title{Iteratively re-weighted least squares for Penalised Composite Link Models}
 \usage{
-pclmIRLS(n, C, X = diag(nrow = ncol(C)), lambda = 1, deg = 2)
+pclmIRLS(n, C, X = diag(nrow = ncol(C)), lambda = 1, deg = 2, D)
 }
 \arguments{
 \item{n}{a numeric vector containing grouped count data}
@@ -17,10 +17,12 @@ distribution for the binned data}
 \item{lambda}{a scalar smoothness penalty}
 
 \item{deg}{the degree of the smoothness operator}
+
+\item{D}{a matrix for penalising the likelihood (overrides \code{deg})}
 }
 \value{
 a list with the following names components
-\itemize{
+\describe{
     \item{'mu'}{The (fitted) expected count in each group}
     \item{'gamma'}{The (fitted) expected count in each bin}
     \item{'trace'}{The effective dimension of the (fitted) model}
