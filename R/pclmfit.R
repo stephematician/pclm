@@ -38,6 +38,9 @@
 #'      bin (default \code{F})
 #' @param k integer (scalar); number of inner knots to use in the spline
 #'     describing the expected count in each bin (default \code{4})
+#' @param search_range (scalar): a factor for determining the range of the
+#'     search (for optimal AIC) in log penalty space, default is `1e6` i.e. to
+#'     search from `lambda0 / 1e3` to `1e3 * lambda0`
 #' @param ... further arguments passed on to \code{optim} and \code{pclmIRLS}
 #'
 #' @return a list with the following named components
@@ -57,7 +60,7 @@
 #' @importFrom splines ns
 #' @export
 pclmfit <- function(n, x, w=rep(1, length(x)), lambda0=1,
-                    do_optim=T, use_spline=F, k=4, ...) {
+                    do_optim=T, use_spline=F, k=4, search_range=1e4, ...) {
 
     stopifnot(is.vector(n), is.numeric(n), all(n >= 0))
     stopifnot(is.vector(x), is.numeric(x), all(x %in% 1:length(n)))
@@ -97,14 +100,43 @@ pclmfit <- function(n, x, w=rep(1, length(x)), lambda0=1,
     ln_lambda_fit <- log(lambda0)
 
     if (do_optim) {
+
         optim_args <- c(list(pclm_search),
                         modifyList(
-                            list(lower=0.5 * log(.Machine$double.eps),
-                                 upper=0.5 * log(.Machine$double.xmax)),
+                            list(lower=ln_lambda_fit - 0.5 * log(search_range),
+                                 upper=ln_lambda_fit + 0.5 * log(search_range)),
                             list(...)
                         ))
 
-        ln_lambda_fit <- do.call(optimize, optim_args)$minimum
+        repeat {
+
+            # search for optimal solution in current range
+            ln_lambda_fit <- do.call(optimize, optim_args)$minimum
+
+            # if we've searched as far as we realisticall can; break
+            if (optim_args$lower < 0.5 * log(.Machine$double.eps)) break
+            if (optim_args$upper > 0.5 * log(.Machine$double.xmax)) break
+
+            # minimum distance between two points according to `optimize`
+            min_d <- .Machine$double.eps^0.25 * abs(ln_lambda_fit) +
+                         min(optim_args$tol,
+                             .Machine$double.eps^0.25,
+                             na.rm=T) / 3
+
+            if (ln_lambda_fit - optim_args$lower < 1e1 * min_d) {
+                # too close to LHS, expand search
+                optim_args$lower <- ln_lambda_fit - log(search_range)
+                optim_args$upper <- ln_lambda_fit + 1e1 * min_d
+            } else if (optim_args$upper - ln_lambda_fit < 1e1 * min_d) {
+                # too close to RHS, expand search 
+                optim_args$lower <- ln_lambda_fit - 1e1 * min_d
+                optim_args$upper <- ln_lambda_fit + log(search_range)
+            } else
+                # we are sufficiently far from boundary, end search
+                break
+
+        }
+
     }
 
     fit <- c(do.call(pclmIRLS,

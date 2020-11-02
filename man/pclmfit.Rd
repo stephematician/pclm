@@ -5,7 +5,7 @@
 \title{Penalised Composite Link Model by minimisation of AIC}
 \usage{
 pclmfit(n, x, w = rep(1, length(x)), lambda0 = 1, do_optim = T,
-  use_spline = F, k = 4, ...)
+  use_spline = F, k = 4, search_range = 10000, ...)
 }
 \arguments{
 \item{n}{numeric (vector); counts in each group}
@@ -25,6 +25,10 @@ bin (default \code{F})}
 
 \item{k}{integer (scalar); number of inner knots to use in the spline
 describing the expected count in each bin (default \code{4})}
+
+\item{search_range}{(scalar): a factor for determining the range of the
+search (for optimal AIC) in log penalty space, default is `1e6` i.e. to
+search from `lambda0 / 1e3` to `1e3 * lambda0`}
 
 \item{...}{further arguments passed on to \code{optim} and \code{pclmIRLS}}
 }
