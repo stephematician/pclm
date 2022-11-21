@@ -4,8 +4,17 @@
 \alias{pclmfit}
 \title{Penalised Composite Link Model by minimisation of AIC}
 \usage{
-pclmfit(n, x, w = rep(1, length(x)), lambda0 = 1, do_optim = T,
-  use_spline = F, k = 4, search_range = 10000, ...)
+pclmfit(
+  n,
+  x,
+  w = rep(1, length(x)),
+  lambda0 = 1,
+  do_optim = T,
+  use_spline = F,
+  k = 4,
+  search_range = 10000,
+  ...
+)
 }
 \arguments{
 \item{n}{numeric (vector); counts in each group}

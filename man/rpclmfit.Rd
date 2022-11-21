@@ -7,33 +7,31 @@
 rpclmfit(D, pclm_fit, n_sample = 1L)
 }
 \arguments{
-\item{D}{A two-column data.frame of integers, each row represents an
-observation of an interval of bins, columns correspond to lower and
+\item{D}{a two-column data.frame (or matrix) of integers, each row represents
+an observation of an interval of bins, columns correspond to lower and
 upper bins of the interval (inclusive)}
 
-\item{pclm_fit}{A list as returned by pclmfit}
+\item{pclm_fit}{a list as returned by pclmfit}
 
-\item{n_sample}{Number of samples to draw for each observation}
+\item{n_sample}{number of samples to draw for each observation}
 }
 \value{
-Matrix of drawn bins
+matrix of drawn bins with one row per observation, and columns
+correspond to samples
 }
 \description{
-Scales reasonably well (linear?) with
-\itemize{
-  \item number of observations
-  \item number of unique (observed) intervals
-  \item number of samples per interval
-}
+Generate a sample for each observation (or otherwise) of a variable taken
+from an interval of a PCLM.
 }
 \details{
-Takes about 1 second on a 2016 desktop, Windows 7, for
-\itemize{
-  \item 100000 observations
-  \item 2500 unique intervals
-  \item 5 samples per interval
-}
+Define any interval of bins (not necessarily the same as the original
+groupings) for each observation and then draw a bin from the PCLM using the
+probabilities obtained from \code{pclmfit}.
 
-Cannot handle PCLMs with more than \code{sqrt(.Machine$max.integer)} number
-of bins due to a hashing mechanism used
+The flexibility to define any interval does come at a small cost in terms of
+performance. This is most useful when incorporating some kind of censoring
+into a prediction that provides additional information to narrow down the
+range of possible bins. A simple example might be when 'age at survey' is
+grouped, but 'age at event' is not, and therefore the participant must be at
+least the latter age (in bins).
 }
