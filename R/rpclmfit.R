@@ -37,26 +37,27 @@ rpclmfit <- function(D, pclm_fit, n_sample=1L) {
 
     bins <- matrix(NA_integer_, nrow=nrow(D), ncol=n_sample)
 
-    where_each <- split(1:nrow(D), D[,1L])
+    where_each <- split(seq_along(D[,1L]), D[,1L])
 
-    for (start_j in seq_along(where_each)[sapply(where_each, length) > 0]) {
+    for (j in seq_along(where_each)[sapply(where_each, length) > 0]) {
 
       # find which rows have the current interval 'start', and get the number
       # of draws required for each interval 'end'
-        where_j <- where_each[[start_j]]
-        max_end_j <- max(D[where_j,2L])
-        n_draw <- tabulate(D[where_j,2L], nbins=max_end_j)[start_j:max_end_j] *
-                      n_sample
+        where_j <- where_each[[j]]
+        num_start <- as.integer(names(where_each)[[j]])
+        num_end <- max(D[where_j,2L])
+        n_draw <- tabulate(D[where_j,2L],
+                           nbins=num_end)[num_start:num_end] * n_sample
 
         for (delta_k in seq_along(n_draw)[n_draw != 0]) {
-          # for each [start, end] pair (i.e. index j,k), sample the values using
-          # the probability given by the PCLM
-            is_k <- D[where_j,2L] == (start_j - 1) + delta_k
-            bins[where_j[is_k],] <- (start_j - 1) + sample.int(
+          # for each [start, end] pair sample the values using the probability
+          # given by the PCLM
+            is_k <- D[where_j,2L] == (num_start - 1) + delta_k
+            bins[where_j[is_k],] <- (num_start - 1) + sample.int(
                 delta_k,
                 size=n_draw[delta_k],
                 replace=T,
-                prob=pclm_fit$gamma[(start_j - 1) + (1:delta_k)]
+                prob=pclm_fit$gamma[(num_start - 1) + (1:delta_k)]
             )
         }
 
